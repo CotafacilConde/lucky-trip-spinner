@@ -115,31 +115,31 @@ const AdminAssignment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-vibrant-primary p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2 drop-shadow-lg">
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">
             🎯 Roleta de Atribuição - Admin
           </h1>
-          <p className="text-white/90 drop-shadow-md">Ferramenta para cadastro de participantes</p>
+          <p className="text-slate-600">Ferramenta para cadastro de participantes</p>
         </div>
 
         {/* Main Card */}
-        <Card className="card-vibrant">
-          <CardHeader className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-t-2xl">
-            <CardTitle className="text-center text-2xl font-bold">Sistema de Atribuição de Números</CardTitle>
+        <Card className="bg-white shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-center">Sistema de Atribuição de Números</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-6">
             {/* Number Display */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl border-2 border-blue-200/50">
-              <div className="text-sm text-gray-600 mb-2 font-medium">Próximo Número:</div>
-              <div className="text-5xl font-bold font-mono">
+            <div className="bg-slate-50 p-6 rounded-lg">
+              <div className="text-sm text-slate-600 mb-2">Próximo Número:</div>
+              <div className="text-4xl font-bold font-mono">
                 {isSpinning ? (
                   <motion.span
                     animate={{ opacity: [1, 0.5, 1] }}
                     transition={{ repeat: Infinity, duration: 0.5 }}
-                    className="text-purple-600"
+                    className="text-blue-600"
                   >
                     ????
                   </motion.span>
@@ -148,12 +148,12 @@ const AdminAssignment = () => {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200 }}
-                    className="text-emerald-600"
+                    className="text-green-600"
                   >
                     {selectedNumber}
                   </motion.span>
                 ) : (
-                  <span className="text-gray-400">----</span>
+                  <span className="text-slate-400">----</span>
                 )}
               </div>
             </div>
@@ -164,19 +164,20 @@ const AdminAssignment = () => {
                 onClick={handleSpin}
                 disabled={isSpinning || availableNumbers.length === 0}
                 size="lg"
-                className="btn-vibrant-primary px-10 py-4 text-xl"
+                className="px-8 py-3 text-lg"
               >
                 {isSpinning ? '🎯 Sorteando...' : '🎯 Girar Roleta de Atribuição'}
               </Button>
 
               {selectedNumber && !isSpinning && (
                 <div className="space-y-4">
-                  <div className="text-2xl font-semibold text-emerald-600 mb-4 animate-pulse">
+                  <div className="text-lg font-semibold text-green-600">
                     Número Sorteado: {selectedNumber}
                   </div>
                   <Button
                     onClick={() => setIsModalOpen(true)}
-                    className="btn-vibrant-success px-8 py-3 text-lg"
+                    variant="outline"
+                    className="px-6 py-2"
                   >
                     📝 Cadastrar Participante
                   </Button>
@@ -185,12 +186,12 @@ const AdminAssignment = () => {
             </div>
 
             {/* Stats */}
-            <div className="flex justify-center gap-8 text-sm text-white/90 pt-6 border-t border-white/20">
-              <div className="bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm">
-                <span className="font-bold text-cyan-300">{availableNumbers.length}</span> números disponíveis
+            <div className="flex justify-center gap-8 text-sm text-slate-600 pt-4 border-t">
+              <div>
+                <span className="font-medium text-blue-600">{availableNumbers.length}</span> números disponíveis
               </div>
-              <div className="bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm">
-                <span className="font-bold text-green-300">{participants.length}</span> participantes cadastrados
+              <div>
+                <span className="font-medium text-green-600">{participants.length}</span> participantes cadastrados
               </div>
             </div>
           </CardContent>
@@ -244,10 +245,10 @@ const AdminAssignment = () => {
                 />
               </div>
               <div className="flex gap-2 pt-4">
-                <Button onClick={handleSaveParticipant} className="btn-vibrant-primary flex-1 py-3">
+                <Button onClick={handleSaveParticipant} className="flex-1">
                   💾 Salvar Participante
                 </Button>
-                <Button variant="outline" onClick={() => setIsModalOpen(false)} className="px-6 py-3">
+                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
                   Cancelar
                 </Button>
               </div>
