@@ -9,7 +9,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-4">
+    <div className="min-h-screen bg-vibrant-primary p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
@@ -30,7 +30,7 @@ const Index = () => {
         {/* Navigation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Admin Assignment */}
-          <Card className="bg-white/95 backdrop-blur-sm p-6 shadow-xl hover:shadow-2xl transition-all cursor-pointer group">
+          <Card className="card-vibrant p-8 hover:shadow-2xl transition-all cursor-pointer group">
             <div 
               className="text-center space-y-4"
               onClick={() => navigate('/admin')}
@@ -44,14 +44,14 @@ const Index = () => {
               <p className="text-gray-600 text-sm">
                 Sistema administrativo para cadastrar participantes e atribuir números
               </p>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+              <Button className="btn-vibrant-primary w-full py-3">
                 Acessar Admin
               </Button>
             </div>
           </Card>
 
           {/* Public Draw */}
-          <Card className="bg-white/95 backdrop-blur-sm p-6 shadow-xl hover:shadow-2xl transition-all cursor-pointer group">
+          <Card className="card-vibrant p-8 hover:shadow-2xl transition-all cursor-pointer group">
             <div 
               className="text-center space-y-4"
               onClick={() => navigate('/sorteio')}
@@ -65,14 +65,14 @@ const Index = () => {
               <p className="text-gray-600 text-sm">
                 Roleta pública para o sorteio final do vencedor da viagem
               </p>
-              <Button className="w-full bg-green-600 hover:bg-green-700">
+              <Button className="btn-vibrant-secondary w-full py-3">
                 Ir para Sorteio
               </Button>
             </div>
           </Card>
 
           {/* Participants Panel */}
-          <Card className="bg-white/95 backdrop-blur-sm p-6 shadow-xl hover:shadow-2xl transition-all cursor-pointer group">
+          <Card className="card-vibrant p-8 hover:shadow-2xl transition-all cursor-pointer group">
             <div 
               className="text-center space-y-4"
               onClick={() => navigate('/participants')}
@@ -86,7 +86,7 @@ const Index = () => {
               <p className="text-gray-600 text-sm">
                 Visualizar lista completa dos participantes cadastrados
               </p>
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
+              <Button className="btn-vibrant-success w-full py-3">
                 Ver Participantes
               </Button>
             </div>
