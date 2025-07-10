@@ -32,10 +32,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (password: string): Promise<boolean> => {
     try {
+      console.log('Tentando fazer login com senha:', password);
+      
       // Use RPC function to get the password
-      const { data, error } = await (supabase as any).rpc('get_admin_password');
+      const { data, error } = await supabase.rpc('get_admin_password');
 
-      if (error) throw error;
+      console.log('Resposta da função RPC:', { data, error });
+
+      if (error) {
+        console.error('Erro na função RPC:', error);
+        throw error;
+      }
+
+      console.log('Senha do banco:', data);
+      console.log('Senha fornecida:', password);
+      console.log('Senhas são iguais?', data === password);
 
       if (data === password) {
         setIsAuthenticated(true);
@@ -56,6 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setIsAuthenticated(false);
     localStorage.removeItem('isAuthenticated');
+    toast.success('Logout realizado com sucesso!');
   };
 
   return (
