@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (password: string): Promise<boolean> => {
     try {
       // Use RPC function to get the password
-      const { data, error } = await supabase.rpc('get_admin_password');
+      const { data, error } = await supabase.rpc('get_admin_password' as any);
 
       if (error) throw error;
 
