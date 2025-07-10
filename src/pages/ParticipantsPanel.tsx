@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -46,17 +45,23 @@ const ParticipantsPanel = () => {
         .select('*')
         .order('data_atribuicao', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao carregar participantes:', error);
+        throw error;
+      }
+      
+      console.log('Participantes carregados:', data);
       setParticipants(data || []);
     } catch (error) {
       console.error('Erro ao carregar participantes:', error);
-      toast.error('Erro ao carregar participantes');
+      toast.error('Erro ao carregar participantes: ' + (error as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (participant: Participant) => {
+    console.log('Editando participante:', participant);
     setEditingParticipant(participant);
     setIsEditModalOpen(true);
   };
@@ -65,38 +70,52 @@ const ParticipantsPanel = () => {
     if (!editingParticipant) return;
 
     try {
+      console.log('Salvando edição:', data, 'para participante:', editingParticipant.id);
+      
       const { error } = await supabase
         .from('participants')
         .update(data)
         .eq('id', editingParticipant.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao atualizar participante:', error);
+        throw error;
+      }
 
+      console.log('Participante atualizado com sucesso');
       toast.success('Participante atualizado com sucesso!');
       setIsEditModalOpen(false);
       setEditingParticipant(null);
       loadParticipants();
     } catch (error) {
       console.error('Erro ao atualizar participante:', error);
-      toast.error('Erro ao atualizar participante');
+      toast.error('Erro ao atualizar participante: ' + (error as Error).message);
     }
   };
 
   const handleDelete = async (participant: Participant) => {
+    console.log('Tentando excluir participante:', participant);
+    
     if (window.confirm(`Deseja realmente excluir ${participant.nome}?`)) {
       try {
+        console.log('Excluindo participante com ID:', participant.id);
+        
         const { error } = await supabase
           .from('participants')
           .delete()
           .eq('id', participant.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao excluir participante:', error);
+          throw error;
+        }
 
+        console.log('Participante excluído com sucesso');
         toast.success('Participante excluído com sucesso!');
         loadParticipants();
       } catch (error) {
         console.error('Erro ao excluir participante:', error);
-        toast.error('Erro ao excluir participante');
+        toast.error('Erro ao excluir participante: ' + (error as Error).message);
       }
     }
   };
