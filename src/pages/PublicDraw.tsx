@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Plane, Briefcase, Ticket, DollarSign, Sun, MapPin, ExternalLink } from 'lucide-react';
 import BackToHome from '@/components/BackToHome';
 import WinnerModal from '@/components/WinnerModal';
+import CountdownOverlay from '@/components/CountdownOverlay';
 
 interface Participant {
   id: string;
@@ -128,10 +128,8 @@ const PublicDraw = () => {
         <BackToHome />
       </div>
 
-      {/* Overlay escuro durante o sorteio */}
-      {(isSpinning || showCountdown) && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" />
-      )}
+      {/* Overlay de contagem regressiva */}
+      <CountdownOverlay isVisible={showCountdown} countdown={countdown} />
 
       {/* Modal do vencedor */}
       <WinnerModal 
@@ -169,7 +167,7 @@ const PublicDraw = () => {
           <div className="flex items-center justify-center gap-8 mb-12 relative">
             {/* Wheel */}
             <motion.div
-              className="relative z-50"
+              className="relative z-30"
               animate={{
                 rotate: isSpinning ? 1800 : 0,
                 scale: isSpinning ? 1.1 : 1
@@ -204,22 +202,6 @@ const PublicDraw = () => {
                   </div>
                 </div>
 
-                {/* Contagem regressiva no centro da roleta */}
-                {showCountdown && (
-                  <div className="absolute inset-0 flex items-center justify-center z-60">
-                    <motion.div
-                      key={countdown}
-                      initial={{ scale: 0, rotate: -180 }}
-                      animate={{ scale: 1, rotate: 0 }}
-                      exit={{ scale: 0, rotate: 180 }}
-                      transition={{ type: "spring", stiffness: 200 }}
-                      className="text-white text-8xl font-bold drop-shadow-2xl bg-black/50 rounded-full w-32 h-32 flex items-center justify-center"
-                    >
-                      {countdown}
-                    </motion.div>
-                  </div>
-                )}
-
                 {/* Center */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-20 h-20 bg-white rounded-full shadow-xl flex items-center justify-center">
@@ -236,7 +218,7 @@ const PublicDraw = () => {
 
             {/* Lever */}
             <motion.div
-              className="flex flex-col items-center z-50"
+              className="flex flex-col items-center z-30"
               animate={{
                 y: leverDown ? 20 : 0
               }}
