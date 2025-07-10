@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -37,28 +36,42 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
     observacoes: ''
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     if (participant) {
+      console.log('Carregando dados do participante no modal:', participant);
       setFormData({
-        nome: participant.nome,
-        contato: participant.contato,
+        nome: participant.nome || '',
+        contato: participant.contato || '',
         origem: participant.origem || '',
         observacoes: participant.observacoes || ''
       });
     }
   }, [participant]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.nome.trim() || !formData.contato.trim()) {
+      alert('Nome e contato são obrigatórios!');
       return;
     }
 
-    onSave({
-      nome: formData.nome.trim(),
-      contato: formData.contato.trim(),
-      origem: formData.origem || null,
-      observacoes: formData.observacoes || null
-    });
+    setIsLoading(true);
+    
+    try {
+      console.log('Salvando dados do formulário:', formData);
+      
+      await onSave({
+        nome: formData.nome.trim(),
+        contato: formData.contato.trim(),
+        origem: formData.origem || null,
+        observacoes: formData.observacoes || null
+      });
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -68,7 +81,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Editar Participante</DialogTitle>
         </DialogHeader>
@@ -80,6 +93,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
               value={formData.nome}
               onChange={(e) => setFormData(prev => ({ ...prev, nome: e.target.value }))}
               placeholder="Nome completo"
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -89,11 +103,16 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
               value={formData.contato}
               onChange={(e) => setFormData(prev => ({ ...prev, contato: e.target.value }))}
               placeholder="E-mail ou telefone"
+              disabled={isLoading}
             />
           </div>
           <div>
             <Label htmlFor="edit-origem">Origem</Label>
-            <Select value={formData.origem} onValueChange={(value) => setFormData(prev => ({ ...prev, origem: value }))}>
+            <Select 
+              value={formData.origem} 
+              onValueChange={(value) => setFormData(prev => ({ ...prev, origem: value }))}
+              disabled={isLoading}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a origem" />
               </SelectTrigger>
@@ -111,13 +130,22 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, observacoes: e.target.value }))}
               placeholder="Observações adicionais (opcional)"
               rows={3}
+              disabled={isLoading}
             />
           </div>
           <div className="flex gap-2 pt-4">
-            <Button onClick={handleSave} className="flex-1">
-              Salvar Alterações
+            <Button 
+              onClick={handleSave} 
+              className="flex-1"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Salvando...' : 'Salvar Alterações'}
             </Button>
-            <Button variant="outline" onClick={handleClose}>
+            <Button 
+              variant="outline" 
+              onClick={handleClose}
+              disabled={isLoading}
+            >
               Cancelar
             </Button>
           </div>
