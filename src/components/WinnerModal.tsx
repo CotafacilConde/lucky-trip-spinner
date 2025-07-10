@@ -41,28 +41,28 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
 
       {/* Título animado fora do modal */}
       {isOpen && (
-        <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-[60] pointer-events-none">
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[60] pointer-events-none">
           <motion.h2
             initial={{ scale: 0, opacity: 0, y: -50 }}
             animate={{ 
-              scale: [0, 1.2, 1], 
+              scale: [0, 1.1, 0.9], 
               opacity: 1, 
               y: 0,
               textShadow: [
-                "0 0 20px rgba(255,255,255,0.8)",
-                "0 0 40px rgba(255,215,0,0.8)",
-                "0 0 60px rgba(255,165,0,0.8)"
+                "0 0 15px rgba(255,255,255,0.8)",
+                "0 0 30px rgba(255,215,0,0.8)",
+                "0 0 45px rgba(255,165,0,0.8)"
               ]
             }}
             transition={{ 
               type: "spring", 
-              stiffness: 200, 
+              stiffness: 180, 
               delay: 0.2,
-              duration: 1.5
+              duration: 1.2
             }}
-            className="text-4xl md:text-6xl font-bold text-white drop-shadow-2xl text-center animate-pulse"
+            className="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl text-center animate-pulse"
             style={{
-              textShadow: "0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(255,215,0,0.6), 0 0 90px rgba(255,165,0,0.4)"
+              textShadow: "0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,215,0,0.6), 0 0 60px rgba(255,165,0,0.4)"
             }}
           >
             🎉 Parabéns!!! 🎉
@@ -76,7 +76,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
           {[...Array(50)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-3 h-3 rounded-full"
+              className="absolute w-2 h-2 rounded-full"
               style={{
                 background: `hsl(${Math.random() * 360}, 100%, 70%)`,
                 left: `${Math.random() * 100}%`,
@@ -91,13 +91,13 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
               animate={{
                 scale: [0, 1, 0.5, 0],
                 opacity: [0, 1, 0.8, 0],
-                x: [0, (Math.random() - 0.5) * 200],
-                y: [0, (Math.random() - 0.5) * 200],
+                x: [0, (Math.random() - 0.5) * 150],
+                y: [0, (Math.random() - 0.5) * 150],
               }}
               transition={{
-                duration: 3,
+                duration: 2.5,
                 repeat: Infinity,
-                delay: Math.random() * 3,
+                delay: Math.random() * 2.5,
                 ease: "easeOut"
               }}
             />
@@ -107,7 +107,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={`big-${i}`}
-              className="absolute w-6 h-6 rounded-full"
+              className="absolute w-5 h-5 rounded-full"
               style={{
                 background: `radial-gradient(circle, hsl(${Math.random() * 360}, 100%, 80%), hsl(${Math.random() * 360}, 100%, 60%))`,
                 left: `${Math.random() * 100}%`,
@@ -119,14 +119,14 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
                 rotate: 0
               }}
               animate={{
-                scale: [0, 1.5, 1, 0],
-                opacity: [0, 1, 0.7, 0],
+                scale: [0, 1.3, 0.8, 0],
+                opacity: [0, 1, 0.6, 0],
                 rotate: [0, 360],
               }}
               transition={{
-                duration: 4,
+                duration: 3.5,
                 repeat: Infinity,
-                delay: Math.random() * 4,
+                delay: Math.random() * 3.5,
                 ease: "easeInOut"
               }}
             />
@@ -136,28 +136,28 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
 
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent 
-          className="max-w-md bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 border-4 border-yellow-300 relative overflow-hidden z-[60]"
+          className="max-w-sm bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 border-4 border-yellow-300 relative overflow-hidden z-[60]"
           style={{
             position: 'fixed',
-            top: '50%',
+            top: '55%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             margin: 0
           }}
         >
-          <div className="text-center p-8 relative z-10">
+          <div className="text-center p-6 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 50, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
-              className="bg-white/95 backdrop-blur-sm rounded-xl p-6 mb-6 shadow-2xl"
+              transition={{ delay: 0.8, type: "spring", stiffness: 180 }}
+              className="bg-white/95 backdrop-blur-sm rounded-xl p-5 mb-5 shadow-2xl"
             >
               {/* Nome do participante */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
-                className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 uppercase"
+                transition={{ delay: 1.0 }}
+                className="text-xl md:text-2xl font-bold text-gray-800 mb-3 uppercase"
               >
                 {winner.nome}
               </motion.div>
@@ -166,11 +166,11 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.4, type: "spring", stiffness: 300 }}
-                className="text-lg text-gray-700 mb-3"
+                transition={{ delay: 1.2, type: "spring", stiffness: 250 }}
+                className="text-base text-gray-700 mb-2"
               >
                 <span className="font-semibold">Cupom: </span>
-                <span className="text-3xl font-bold text-green-600 font-mono bg-yellow-100 px-3 py-1 rounded-lg">
+                <span className="text-2xl font-bold text-green-600 font-mono bg-yellow-100 px-2 py-0.5 rounded-lg">
                   {winner.numero}
                 </span>
               </motion.div>
@@ -180,8 +180,8 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1.6 }}
-                  className="text-lg text-gray-700 mb-3"
+                  transition={{ delay: 1.4 }}
+                  className="text-base text-gray-700 mb-2"
                 >
                   <span className="font-semibold">Origem: </span>
                   <span className="text-blue-600 font-medium">
@@ -194,7 +194,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.8 }}
+                transition={{ delay: 1.6 }}
                 className="text-sm text-gray-600"
               >
                 <span className="font-semibold">Telefone: </span>
@@ -207,12 +207,12 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 2 }}
+              transition={{ delay: 1.8 }}
             >
               <Button
                 onClick={onClose}
                 size="lg"
-                className="bg-white text-orange-600 hover:bg-gray-100 font-bold text-xl px-8 py-3 shadow-lg hover:shadow-xl transition-all duration-200"
+                className="bg-white text-orange-600 hover:bg-gray-100 font-bold text-lg px-6 py-2 shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 Fechar
               </Button>
