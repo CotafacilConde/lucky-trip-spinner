@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { Plane, Briefcase, Ticket, DollarSign, Sun, MapPin, ExternalLink } from 'lucide-react';
 import BackToHome from '@/components/BackToHome';
-import CountdownOverlay from '@/components/CountdownOverlay';
 import WinnerModal from '@/components/WinnerModal';
 
 interface Participant {
@@ -80,7 +79,7 @@ const PublicDraw = () => {
             setIsSpinning(false);
             setShowWinner(true);
             
-            toast.success(`🎉 Temos um vencedor! Número ${selectedParticipant.numero}!`);
+            toast.success(`🎉 Temos um vencedor! Cupom ${selectedParticipant.numero}!`);
           }, 500);
           
           return 0;
@@ -104,6 +103,17 @@ const PublicDraw = () => {
     { icon: MapPin, color: "text-red-500" }
   ];
 
+  const formatPhoneNumber = (phone: string) => {
+    if (!phone) return '';
+    const phoneStr = phone.replace(/\D/g, '');
+    if (phoneStr.length >= 7) {
+      const firstTwo = phoneStr.slice(0, 4);
+      const lastThree = phoneStr.slice(-3);
+      return `${firstTwo}****${lastThree}`;
+    }
+    return phone;
+  };
+
   return (
     <div 
       className="min-h-screen relative overflow-hidden"
@@ -118,8 +128,10 @@ const PublicDraw = () => {
         <BackToHome />
       </div>
 
-      {/* Overlay da contagem regressiva */}
-      <CountdownOverlay isVisible={showCountdown} countdown={countdown} />
+      {/* Overlay escuro durante o sorteio */}
+      {(isSpinning || showCountdown) && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40" />
+      )}
 
       {/* Modal do vencedor */}
       <WinnerModal 
@@ -154,12 +166,13 @@ const PublicDraw = () => {
           </motion.div>
 
           {/* Wheel and Lever Container */}
-          <div className="flex items-center justify-center gap-8 mb-12">
+          <div className="flex items-center justify-center gap-8 mb-12 relative">
             {/* Wheel */}
             <motion.div
-              className="relative"
+              className="relative z-50"
               animate={{
-                rotate: isSpinning ? 1800 : 0
+                rotate: isSpinning ? 1800 : 0,
+                scale: isSpinning ? 1.1 : 1
               }}
               transition={{
                 duration: isSpinning ? 10 : 0,
@@ -191,6 +204,22 @@ const PublicDraw = () => {
                   </div>
                 </div>
 
+                {/* Contagem regressiva no centro da roleta */}
+                {showCountdown && (
+                  <div className="absolute inset-0 flex items-center justify-center z-60">
+                    <motion.div
+                      key={countdown}
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      exit={{ scale: 0, rotate: 180 }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                      className="text-white text-8xl font-bold drop-shadow-2xl bg-black/50 rounded-full w-32 h-32 flex items-center justify-center"
+                    >
+                      {countdown}
+                    </motion.div>
+                  </div>
+                )}
+
                 {/* Center */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-20 h-20 bg-white rounded-full shadow-xl flex items-center justify-center">
@@ -207,7 +236,7 @@ const PublicDraw = () => {
 
             {/* Lever */}
             <motion.div
-              className="flex flex-col items-center"
+              className="flex flex-col items-center z-50"
               animate={{
                 y: leverDown ? 20 : 0
               }}
