@@ -8,8 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
+import BackToHome from '@/components/BackToHome';
 
 interface Participant {
   id: string;
@@ -117,15 +117,8 @@ const AdminAssignment = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 p-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">
-            🎯 Roleta de Atribuição - Admin
-          </h1>
-          <p className="text-slate-600">Ferramenta para cadastro de participantes</p>
-        </div>
+        <BackToHome title="Atribuir Número" />
 
-        {/* Main Card */}
         <Card className="bg-white shadow-lg">
           <CardHeader>
             <CardTitle className="text-center">Sistema de Atribuição de Números</CardTitle>

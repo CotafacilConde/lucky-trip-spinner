@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -9,10 +10,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, X } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
+import BackToHome from '@/components/BackToHome';
+import ParticipantMenu from '@/components/ParticipantMenu';
+import EditParticipantModal from '@/components/EditParticipantModal';
 
 interface Participant {
   id: string;
@@ -27,6 +31,8 @@ interface Participant {
 const ParticipantsPanel = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingParticipant, setEditingParticipant] = useState<Participant | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   useEffect(() => {
     loadParticipants();
@@ -50,6 +56,51 @@ const ParticipantsPanel = () => {
     }
   };
 
+  const handleEdit = (participant: Participant) => {
+    setEditingParticipant(participant);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (data: Partial<Participant>) => {
+    if (!editingParticipant) return;
+
+    try {
+      const { error } = await supabase
+        .from('participants')
+        .update(data)
+        .eq('id', editingParticipant.id);
+
+      if (error) throw error;
+
+      toast.success('Participante atualizado com sucesso!');
+      setIsEditModalOpen(false);
+      setEditingParticipant(null);
+      loadParticipants();
+    } catch (error) {
+      console.error('Erro ao atualizar participante:', error);
+      toast.error('Erro ao atualizar participante');
+    }
+  };
+
+  const handleDelete = async (participant: Participant) => {
+    if (window.confirm(`Deseja realmente excluir ${participant.nome}?`)) {
+      try {
+        const { error } = await supabase
+          .from('participants')
+          .delete()
+          .eq('id', participant.id);
+
+        if (error) throw error;
+
+        toast.success('Participante excluído com sucesso!');
+        loadParticipants();
+      } catch (error) {
+        console.error('Erro ao excluir participante:', error);
+        toast.error('Erro ao excluir participante');
+      }
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('pt-BR', {
       day: '2-digit',
@@ -63,36 +114,7 @@ const ParticipantsPanel = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-800">
-              📋 Painel de Participantes
-            </h1>
-            <p className="text-slate-600 mt-1">
-              Lista completa dos participantes cadastrados
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={loadParticipants}
-              variant="outline"
-              size="sm"
-              disabled={loading}
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Atualizar
-            </Button>
-            <Button
-              onClick={() => window.close()}
-              variant="outline"
-              size="sm"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Fechar
-            </Button>
-          </div>
-        </div>
+        <BackToHome title="Lista de Participantes" />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -129,9 +151,20 @@ const ParticipantsPanel = () => {
         {/* Participants Table */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-semibold">
-              Lista de Participantes
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-semibold">
+                Lista de Participantes
+              </CardTitle>
+              <Button
+                onClick={loadParticipants}
+                variant="outline"
+                size="sm"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Atualizar
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -156,6 +189,7 @@ const ParticipantsPanel = () => {
                       <TableHead className="font-bold text-center">Origem</TableHead>
                       <TableHead className="font-bold">Observações</TableHead>
                       <TableHead className="font-bold text-center">Data da Atribuição</TableHead>
+                      <TableHead className="font-bold text-center">Ações</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -202,6 +236,12 @@ const ParticipantsPanel = () => {
                         <TableCell className="text-center text-sm font-mono">
                           {formatDate(participant.data_atribuicao)}
                         </TableCell>
+                        <TableCell className="text-center">
+                          <ParticipantMenu
+                            onEdit={() => handleEdit(participant)}
+                            onDelete={() => handleDelete(participant)}
+                          />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -210,6 +250,17 @@ const ParticipantsPanel = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Modal de Edição */}
+        <EditParticipantModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setEditingParticipant(null);
+          }}
+          onSave={handleSaveEdit}
+          participant={editingParticipant}
+        />
       </div>
     </div>
   );

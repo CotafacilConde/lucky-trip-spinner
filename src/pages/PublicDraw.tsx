@@ -1,11 +1,13 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import { Plane, Briefcase, Ticket, DollarSign, Sun, MapPin } from 'lucide-react';
-import { ExternalLink } from 'lucide-react';
+import { Plane, Briefcase, Ticket, DollarSign, Sun, MapPin, ExternalLink } from 'lucide-react';
+import BackToHome from '@/components/BackToHome';
+import CountdownOverlay from '@/components/CountdownOverlay';
+import WinnerModal from '@/components/WinnerModal';
 
 interface Participant {
   id: string;
@@ -18,12 +20,12 @@ interface Participant {
 
 const PublicDraw = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [winnerNumber, setWinnerNumber] = useState<number | null>(null);
   const [winner, setWinner] = useState<Participant | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
   const [leverDown, setLeverDown] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const [showCountdown, setShowCountdown] = useState(false);
 
   useEffect(() => {
     loadParticipants();
@@ -56,24 +58,41 @@ const PublicDraw = () => {
     setLeverDown(true);
     setTimeout(() => setLeverDown(false), 500);
 
-    // Iniciar sorteio
+    // Iniciar contagem regressiva
     setIsSpinning(true);
     setShowWinner(false);
-    setShowConfetti(false);
+    setShowCountdown(true);
+    setCountdown(10);
 
-    // Sorteio após 6 segundos
-    setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * participants.length);
-      const selectedParticipant = participants[randomIndex];
-      
-      setWinnerNumber(selectedParticipant.numero);
-      setWinner(selectedParticipant);
-      setIsSpinning(false);
-      setShowWinner(true);
-      setShowConfetti(true);
-      
-      toast.success(`🎉 Temos um vencedor! Número ${selectedParticipant.numero}!`);
-    }, 6000);
+    // Contagem regressiva
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          setShowCountdown(false);
+          
+          // Realizar sorteio
+          setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * participants.length);
+            const selectedParticipant = participants[randomIndex];
+            
+            setWinner(selectedParticipant);
+            setIsSpinning(false);
+            setShowWinner(true);
+            
+            toast.success(`🎉 Temos um vencedor! Número ${selectedParticipant.numero}!`);
+          }, 500);
+          
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleCloseModal = () => {
+    setShowWinner(false);
+    setWinner(null);
   };
 
   const wheelIcons = [
@@ -95,35 +114,21 @@ const PublicDraw = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Confetti Effect */}
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50">
-          {[...Array(50)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 bg-yellow-400 rounded"
-              initial={{
-                x: Math.random() * window.innerWidth,
-                y: -10,
-                rotate: 0,
-                scale: 1
-              }}
-              animate={{
-                y: window.innerHeight + 10,
-                rotate: 360,
-                scale: [1, 1.5, 1]
-              }}
-              transition={{
-                duration: 3,
-                delay: Math.random() * 2,
-                ease: "easeOut"
-              }}
-            />
-          ))}
-        </div>
-      )}
+      <div className="max-w-4xl mx-auto p-4">
+        <BackToHome />
+      </div>
 
-      {/* Participants Panel Button */}
+      {/* Overlay da contagem regressiva */}
+      <CountdownOverlay isVisible={showCountdown} countdown={countdown} />
+
+      {/* Modal do vencedor */}
+      <WinnerModal 
+        isOpen={showWinner} 
+        onClose={handleCloseModal} 
+        winner={winner} 
+      />
+
+      {/* Botão de participantes */}
       <Button
         onClick={() => window.open('/participants', '_blank')}
         className="fixed top-4 right-4 z-40 bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30"
@@ -157,7 +162,7 @@ const PublicDraw = () => {
                 rotate: isSpinning ? 1800 : 0
               }}
               transition={{
-                duration: isSpinning ? 6 : 0,
+                duration: isSpinning ? 10 : 0,
                 ease: isSpinning ? [0.25, 0.46, 0.45, 0.94] : "easeOut"
               }}
             >
@@ -222,40 +227,6 @@ const PublicDraw = () => {
               </Button>
             </motion.div>
           </div>
-
-          {/* Winner Display */}
-          {showWinner && winner && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 200,
-                delay: 0.5
-              }}
-              className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border-4 border-yellow-400 max-w-md mx-auto"
-            >
-              <div className="text-center">
-                <h2 className="text-3xl font-bold text-green-600 mb-4">
-                  🎉 VENCEDOR! 🎉
-                </h2>
-                <div className="text-6xl font-bold font-mono text-green-700 mb-4">
-                  {winnerNumber}
-                </div>
-                <div className="text-xl font-semibold text-gray-800 mb-2">
-                  {winner.nome}
-                </div>
-                <div className="text-gray-600">
-                  {winner.contato}
-                </div>
-                {winner.origem && (
-                  <div className="text-sm text-gray-500 mt-2">
-                    Origem: {winner.origem}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
 
           {/* Instructions */}
           {!showWinner && !isSpinning && participants.length > 0 && (
