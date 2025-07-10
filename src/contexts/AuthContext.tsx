@@ -32,15 +32,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (password: string): Promise<boolean> => {
     try {
-      const { data, error } = await supabase
-        .from('system_config')
-        .select('config_value')
-        .eq('config_key', 'admin_password')
-        .single();
+      // Use RPC function to get the password
+      const { data, error } = await supabase.rpc('get_admin_password');
 
       if (error) throw error;
 
-      if (data.config_value === password) {
+      if (data === password) {
         setIsAuthenticated(true);
         localStorage.setItem('isAuthenticated', 'true');
         toast.success('Login realizado com sucesso!');
