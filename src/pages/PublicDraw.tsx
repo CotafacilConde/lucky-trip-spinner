@@ -41,6 +41,7 @@ const PublicDraw = () => {
         .order('data_atribuicao', { ascending: false });
 
       if (error) throw error;
+      console.log('Participantes carregados:', data);
       setParticipants(data || []);
     } catch (error) {
       console.error('Erro ao carregar participantes:', error);
@@ -55,6 +56,8 @@ const PublicDraw = () => {
     }
 
     if (isSpinning) return;
+
+    console.log('Iniciando sorteio com participantes:', participants.length);
 
     // 1. Animação inicial da alavanca (movimento para baixo)
     setLeverDown(true);
@@ -82,11 +85,23 @@ const PublicDraw = () => {
               const randomIndex = Math.floor(Math.random() * participants.length);
               const selectedParticipant = participants[randomIndex];
               
+              console.log('Participante selecionado:', selectedParticipant);
+              console.log('Dados completos do vencedor:', {
+                id: selectedParticipant.id,
+                nome: selectedParticipant.nome,
+                contato: selectedParticipant.contato,
+                numero: selectedParticipant.numero,
+                origem: selectedParticipant.origem,
+                data_atribuicao: selectedParticipant.data_atribuicao
+              });
+              
               setWinner(selectedParticipant);
               setIsSpinning(false);
               setHighlightWheel(false);
               setShowWinner(true);
               setLeverUp(false);
+              
+              console.log('Definindo showWinner como true');
               
               toast.success(`🎉 Temos um vencedor! Cupom ${selectedParticipant.numero}!`);
             }, 6000); // 6 segundos de roleta
@@ -100,6 +115,7 @@ const PublicDraw = () => {
   };
 
   const handleCloseModal = () => {
+    console.log('Fechando modal do vencedor');
     setShowWinner(false);
     setWinner(null);
   };
@@ -130,7 +146,8 @@ const PublicDraw = () => {
       {/* Overlay de contagem regressiva */}
       <CountdownOverlay isVisible={showCountdown} countdown={countdown} />
 
-      {/* Modal do vencedor */}
+      {/* Modal do vencedor com debug adicional */}
+      {console.log('Renderizando WinnerModal:', { showWinner, winner })}
       <WinnerModal 
         isOpen={showWinner} 
         onClose={handleCloseModal} 

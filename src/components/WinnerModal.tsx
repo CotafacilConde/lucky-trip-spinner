@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
@@ -20,6 +20,9 @@ interface WinnerModalProps {
 }
 
 const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) => {
+  // Debug logs para verificar se o modal está sendo renderizado
+  console.log('WinnerModal render:', { isOpen, winner });
+
   if (!winner) return null;
 
   const formatPhoneNumber = (phone: string) => {
@@ -46,15 +49,14 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
           <motion.h2
             initial={{ scale: 0, opacity: 0, y: -50 }}
             animate={{ 
-              scale: [0, 1.1, 1], 
+              scale: 1.1, 
               opacity: 1, 
               y: 0
             }}
             transition={{ 
-              type: "spring", 
-              stiffness: 180, 
-              delay: 0.2,
-              duration: 1.2
+              type: "tween", 
+              duration: 0.8,
+              delay: 0.2
             }}
             className="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl text-center"
             style={{
@@ -141,11 +143,21 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
             margin: 0
           }}
         >
+          {/* Títulos obrigatórios para acessibilidade (visualmente ocultos) */}
+          <DialogTitle className="sr-only">Resultado do Sorteio</DialogTitle>
+          <DialogDescription className="sr-only">
+            Parabéns ao vencedor {winner.nome} com o cupom número {winner.numero}
+          </DialogDescription>
+
           <div className="text-center p-6 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: 50, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ delay: 0.8, type: "spring", stiffness: 180 }}
+              transition={{ 
+                delay: 0.8, 
+                type: "tween", 
+                duration: 0.6 
+              }}
               className="bg-white/95 backdrop-blur-sm rounded-xl p-5 mb-5 shadow-2xl"
             >
               {/* Nome do participante */}
@@ -162,7 +174,11 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
               <motion.div
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.2, type: "spring", stiffness: 250 }}
+                transition={{ 
+                  delay: 1.2, 
+                  type: "tween", 
+                  duration: 0.5 
+                }}
                 className="text-base text-gray-700 mb-2"
               >
                 <span className="font-semibold">Cupom: </span>
