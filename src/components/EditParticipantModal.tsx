@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface Participant {
   id: string;
@@ -41,7 +42,14 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
 
   useEffect(() => {
     if (participant) {
-      console.log('Carregando dados do participante no modal:', participant);
+      console.log('📝 Carregando dados do participante no modal de edição:', {
+        id: participant.id,
+        nome: participant.nome,
+        contato: participant.contato,
+        origem: participant.origem,
+        observacoes: participant.observacoes
+      });
+      
       setFormData({
         nome: participant.nome || '',
         contato: participant.contato || '',
@@ -52,26 +60,38 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
   }, [participant]);
 
   const handleSave = async () => {
-    if (!formData.nome.trim() || !formData.contato.trim()) {
-      alert('Nome e contato são obrigatórios!');
+    console.log('💾 Validando dados do formulário...');
+    
+    if (!formData.nome.trim()) {
+      toast.error('O nome é obrigatório!');
+      return;
+    }
+    
+    if (!formData.contato.trim()) {
+      toast.error('O contato é obrigatório!');
       return;
     }
 
     setIsLoading(true);
     
     try {
-      console.log('Enviando dados para salvamento:', formData);
+      console.log('📤 Enviando dados para salvamento:', formData);
       
-      await onSave({
+      const dataToSave = {
         nome: formData.nome.trim(),
         contato: formData.contato.trim(),
         origem: formData.origem || null,
-        observacoes: formData.observacoes || null
-      });
+        observacoes: formData.observacoes?.trim() || null
+      };
 
-      console.log('Dados salvos com sucesso');
+      console.log('📦 Dados preparados para envio:', dataToSave);
+      
+      await onSave(dataToSave);
+
+      console.log('✅ Dados salvos com sucesso pelo modal');
     } catch (error) {
-      console.error('Erro ao salvar no modal:', error);
+      console.error('❌ Erro ao salvar no modal:', error);
+      toast.error('Erro ao salvar alterações: ' + (error as Error).message);
     } finally {
       setIsLoading(false);
     }
@@ -79,6 +99,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
 
   const handleClose = () => {
     if (!isLoading) {
+      console.log('❌ Fechando modal de edição');
       setFormData({ nome: '', contato: '', origem: '', observacoes: '' });
       onClose();
     }
@@ -99,6 +120,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, nome: e.target.value }))}
               placeholder="Nome completo"
               disabled={isLoading}
+              className="mt-1"
             />
           </div>
           <div>
@@ -109,6 +131,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, contato: e.target.value }))}
               placeholder="E-mail ou telefone"
               disabled={isLoading}
+              className="mt-1"
             />
           </div>
           <div>
@@ -118,7 +141,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
               onValueChange={(value) => setFormData(prev => ({ ...prev, origem: value }))}
               disabled={isLoading}
             >
-              <SelectTrigger>
+              <SelectTrigger className="mt-1">
                 <SelectValue placeholder="Selecione a origem" />
               </SelectTrigger>
               <SelectContent>
@@ -136,6 +159,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
               placeholder="Observações adicionais (opcional)"
               rows={3}
               disabled={isLoading}
+              className="mt-1"
             />
           </div>
           <div className="flex gap-2 pt-4">
