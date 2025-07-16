@@ -58,6 +58,7 @@ const PublicDraw = () => {
     if (isSpinning) return;
 
     console.log('Iniciando sorteio com participantes:', participants.length);
+    console.log('Lista de participantes:', participants);
 
     // 1. Animação inicial da alavanca (movimento para baixo)
     setLeverDown(true);
@@ -85,7 +86,10 @@ const PublicDraw = () => {
               const randomIndex = Math.floor(Math.random() * participants.length);
               const selectedParticipant = participants[randomIndex];
               
+              console.log('=== DADOS DO VENCEDOR ===');
               console.log('Participante selecionado:', selectedParticipant);
+              console.log('Índice selecionado:', randomIndex);
+              console.log('Total de participantes:', participants.length);
               console.log('Dados completos do vencedor:', {
                 id: selectedParticipant.id,
                 nome: selectedParticipant.nome,
@@ -101,7 +105,8 @@ const PublicDraw = () => {
               setShowWinner(true);
               setLeverUp(false);
               
-              console.log('Definindo showWinner como true');
+              console.log('Estado atualizado - showWinner:', true);
+              console.log('Estado atualizado - winner:', selectedParticipant);
               
               toast.success(`🎉 Temos um vencedor! Cupom ${selectedParticipant.numero}!`);
             }, 6000); // 6 segundos de roleta
@@ -129,6 +134,9 @@ const PublicDraw = () => {
     { icon: MapPin, color: "text-red-500" }
   ];
 
+  // Debug log antes do render do modal (fora do JSX)
+  console.log('Renderizando WinnerModal:', { showWinner, winner });
+
   return (
     <div 
       className="min-h-screen relative overflow-hidden"
@@ -146,8 +154,7 @@ const PublicDraw = () => {
       {/* Overlay de contagem regressiva */}
       <CountdownOverlay isVisible={showCountdown} countdown={countdown} />
 
-      {/* Modal do vencedor com debug adicional */}
-      {console.log('Renderizando WinnerModal:', { showWinner, winner })}
+      {/* Modal do vencedor */}
       <WinnerModal 
         isOpen={showWinner} 
         onClose={handleCloseModal} 
