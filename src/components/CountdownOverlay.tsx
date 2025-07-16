@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 
@@ -13,14 +14,15 @@ const CountdownOverlay: React.FC<CountdownOverlayProps> = ({ isVisible, countdow
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
       {/* Efeito de pulsação no fundo */}
       <motion.div
-        className="absolute inset-0 bg-gradient-radial from-orange-500/20 via-yellow-500/10 to-transparent"
+        className="absolute inset-0 bg-radial-gradient from-orange-500/20 via-yellow-500/10 to-transparent"
         animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.6, 0.3]
+          scale: [1, 1.2],
+          opacity: [0.3, 0.6]
         }}
         transition={{
           duration: 1,
           repeat: Infinity,
+          repeatType: "reverse",
           ease: "easeInOut"
         }}
       />
@@ -34,7 +36,7 @@ const CountdownOverlay: React.FC<CountdownOverlayProps> = ({ isVisible, countdow
           opacity: 0
         }}
         animate={{ 
-          scale: [0, 1.3, 1], 
+          scale: 1, 
           rotate: 0,
           opacity: 1
         }}
@@ -44,23 +46,16 @@ const CountdownOverlay: React.FC<CountdownOverlayProps> = ({ isVisible, countdow
           opacity: 0
         }}
         transition={{ 
-          type: "spring", 
-          stiffness: 200,
+          type: "tween", 
           duration: 0.8
         }}
         className="relative"
       >
         {/* Glow effect atrás do número */}
         <motion.div
-          className="absolute inset-0 text-9xl md:text-[12rem] font-bold blur-xl"
-          style={{
-            background: 'linear-gradient(45deg, #ffffff, #ffd700, #ff8c00)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}
+          className="absolute inset-0 text-9xl md:text-[12rem] font-bold blur-xl text-white"
           animate={{
-            scale: [1, 1.1, 1],
+            scale: [1, 1.1],
           }}
           transition={{
             duration: 0.5,
@@ -73,19 +68,14 @@ const CountdownOverlay: React.FC<CountdownOverlayProps> = ({ isVisible, countdow
         
         {/* Número principal */}
         <motion.div
-          className="relative text-9xl md:text-[12rem] font-bold drop-shadow-2xl"
+          className="relative text-9xl md:text-[12rem] font-bold text-white drop-shadow-2xl"
           style={{
-            background: 'linear-gradient(45deg, #ffffff 0%, #ffd700 50%, #ff8c00 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            textShadow: '0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 215, 0, 0.6), 0 0 90px rgba(255, 140, 0, 0.4)'
+            filter: 'drop-shadow(0 0 30px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 60px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 90px rgba(255, 140, 0, 0.4))'
           }}
           animate={{
-            textShadow: [
-              '0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 215, 0, 0.6), 0 0 90px rgba(255, 140, 0, 0.4)',
-              '0 0 40px rgba(255, 255, 255, 1), 0 0 80px rgba(255, 215, 0, 0.8), 0 0 120px rgba(255, 140, 0, 0.6)',
-              '0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(255, 215, 0, 0.6), 0 0 90px rgba(255, 140, 0, 0.4)'
+            filter: [
+              'drop-shadow(0 0 30px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 60px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 90px rgba(255, 140, 0, 0.4))',
+              'drop-shadow(0 0 40px rgba(255, 255, 255, 1)) drop-shadow(0 0 80px rgba(255, 215, 0, 0.8)) drop-shadow(0 0 120px rgba(255, 140, 0, 0.6))'
             ]
           }}
           transition={{
@@ -94,7 +84,9 @@ const CountdownOverlay: React.FC<CountdownOverlayProps> = ({ isVisible, countdow
             repeatType: "reverse"
           }}
         >
-          {countdown}
+          <span className="bg-gradient-to-br from-white via-yellow-300 to-orange-400 bg-clip-text text-transparent">
+            {countdown}
+          </span>
         </motion.div>
         
         {/* Partículas ao redor do número */}
@@ -132,11 +124,12 @@ const CountdownOverlay: React.FC<CountdownOverlayProps> = ({ isVisible, countdow
       >
         <motion.p
           animate={{
-            opacity: [0.7, 1, 0.7]
+            opacity: [0.7, 1]
           }}
           transition={{
             duration: 1.5,
             repeat: Infinity,
+            repeatType: "reverse",
             ease: "easeInOut"
           }}
         >

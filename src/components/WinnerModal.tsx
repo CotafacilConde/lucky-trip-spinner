@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -36,23 +37,18 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
     <>
       {/* Overlay escuro de fundo */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50" />
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100]" />
       )}
 
       {/* Título animado fora do modal */}
       {isOpen && (
-        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[60] pointer-events-none">
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-[120] pointer-events-none">
           <motion.h2
             initial={{ scale: 0, opacity: 0, y: -50 }}
             animate={{ 
-              scale: [0, 1.1, 0.9], 
+              scale: [0, 1.1, 1], 
               opacity: 1, 
-              y: 0,
-              textShadow: [
-                "0 0 15px rgba(255,255,255,0.8)",
-                "0 0 30px rgba(255,215,0,0.8)",
-                "0 0 45px rgba(255,165,0,0.8)"
-              ]
+              y: 0
             }}
             transition={{ 
               type: "spring", 
@@ -60,9 +56,9 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
               delay: 0.2,
               duration: 1.2
             }}
-            className="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl text-center animate-pulse"
+            className="text-3xl md:text-5xl font-bold text-white drop-shadow-2xl text-center"
             style={{
-              textShadow: "0 0 20px rgba(255,255,255,0.8), 0 0 40px rgba(255,215,0,0.6), 0 0 60px rgba(255,165,0,0.4)"
+              filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.8)) drop-shadow(0 0 40px rgba(255,215,0,0.6)) drop-shadow(0 0 60px rgba(255,165,0,0.4))'
             }}
           >
             🎉 Parabéns!!! 🎉
@@ -72,7 +68,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
 
       {/* Fogos de artifício em tela cheia */}
       {isOpen && (
-        <div className="fixed inset-0 pointer-events-none z-[55]">
+        <div className="fixed inset-0 pointer-events-none z-[110]">
           {[...Array(50)].map((_, i) => (
             <motion.div
               key={i}
@@ -136,7 +132,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({ isOpen, onClose, winner }) =>
 
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent 
-          className="max-w-sm bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 border-4 border-yellow-300 relative overflow-hidden z-[60]"
+          className="max-w-sm bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 border-4 border-yellow-300 relative overflow-hidden z-[130]"
           style={{
             position: 'fixed',
             top: '55%',

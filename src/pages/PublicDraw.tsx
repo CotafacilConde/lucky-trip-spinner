@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,9 +23,11 @@ const PublicDraw = () => {
   const [winner, setWinner] = useState<Participant | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
   const [leverDown, setLeverDown] = useState(false);
+  const [leverUp, setLeverUp] = useState(false);
   const [showWinner, setShowWinner] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const [showCountdown, setShowCountdown] = useState(false);
+  const [highlightWheel, setHighlightWheel] = useState(false);
 
   useEffect(() => {
     loadParticipants();
@@ -53,33 +56,40 @@ const PublicDraw = () => {
 
     if (isSpinning) return;
 
-    // Animação da alavanca
+    // 1. Animação inicial da alavanca (movimento para baixo)
     setLeverDown(true);
     setTimeout(() => setLeverDown(false), 500);
 
-    // Iniciar contagem regressiva
-    setIsSpinning(true);
-    setShowWinner(false);
+    // 2. Iniciar contagem regressiva
     setShowCountdown(true);
+    setHighlightWheel(true);
     setCountdown(10);
 
-    // Contagem regressiva
+    // 3. Contagem regressiva
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(countdownInterval);
           setShowCountdown(false);
           
-          // Realizar sorteio
+          // 4. Após contagem: alavanca sobe + roleta gira simultaneamente
           setTimeout(() => {
-            const randomIndex = Math.floor(Math.random() * participants.length);
-            const selectedParticipant = participants[randomIndex];
+            setLeverUp(true);
+            setIsSpinning(true);
             
-            setWinner(selectedParticipant);
-            setIsSpinning(false);
-            setShowWinner(true);
-            
-            toast.success(`🎉 Temos um vencedor! Cupom ${selectedParticipant.numero}!`);
+            // 5. Após 6 segundos de roleta, mostrar vencedor
+            setTimeout(() => {
+              const randomIndex = Math.floor(Math.random() * participants.length);
+              const selectedParticipant = participants[randomIndex];
+              
+              setWinner(selectedParticipant);
+              setIsSpinning(false);
+              setHighlightWheel(false);
+              setShowWinner(true);
+              setLeverUp(false);
+              
+              toast.success(`🎉 Temos um vencedor! Cupom ${selectedParticipant.numero}!`);
+            }, 6000); // 6 segundos de roleta
           }, 500);
           
           return 0;
@@ -102,17 +112,6 @@ const PublicDraw = () => {
     { icon: Sun, color: "text-orange-500" },
     { icon: MapPin, color: "text-red-500" }
   ];
-
-  const formatPhoneNumber = (phone: string) => {
-    if (!phone) return '';
-    const phoneStr = phone.replace(/\D/g, '');
-    if (phoneStr.length >= 7) {
-      const firstTwo = phoneStr.slice(0, 4);
-      const lastThree = phoneStr.slice(-3);
-      return `${firstTwo}****${lastThree}`;
-    }
-    return phone;
-  };
 
   return (
     <div 
@@ -169,16 +168,24 @@ const PublicDraw = () => {
             <motion.div
               className="relative z-30"
               animate={{
-                rotate: isSpinning ? 1800 : 0,
-                scale: isSpinning ? 1.1 : 1
+                rotate: isSpinning ? 2160 : 0, // 6 voltas completas
+                scale: highlightWheel ? 1.1 : 1
               }}
               transition={{
-                duration: isSpinning ? 10 : 0,
-                ease: isSpinning ? [0.25, 0.46, 0.45, 0.94] : "easeOut"
+                rotate: {
+                  duration: isSpinning ? 6 : 0, // 6 segundos de rotação
+                  ease: isSpinning ? [0.25, 0.46, 0.45, 0.94] : "easeOut"
+                },
+                scale: {
+                  duration: 0.5,
+                  ease: "easeInOut"
+                }
               }}
             >
               <div 
-                className="w-80 h-80 md:w-96 md:h-96 rounded-full border-8 border-yellow-400 shadow-2xl relative overflow-hidden"
+                className={`w-80 h-80 md:w-96 md:h-96 rounded-full border-8 border-yellow-400 shadow-2xl relative overflow-hidden transition-all duration-500 ${
+                  highlightWheel ? 'ring-4 ring-yellow-300 ring-opacity-50 shadow-yellow-400/50' : ''
+                }`}
                 style={{
                   background: `conic-gradient(
                     from 0deg,
@@ -220,7 +227,7 @@ const PublicDraw = () => {
             <motion.div
               className="flex flex-col items-center z-30"
               animate={{
-                y: leverDown ? 20 : 0
+                y: leverDown ? 20 : leverUp ? -10 : 0
               }}
               transition={{
                 type: "spring",
@@ -231,8 +238,8 @@ const PublicDraw = () => {
               <div className="bg-gradient-to-b from-yellow-400 to-yellow-600 w-6 h-32 rounded-full shadow-lg border-2 border-yellow-700"></div>
               <Button
                 onClick={handleLeverPull}
-                disabled={isSpinning}
-                className="bg-gradient-to-b from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 w-16 h-16 rounded-full shadow-xl border-4 border-red-800 text-white font-bold text-2xl"
+                disabled={isSpinning || showCountdown}
+                className="bg-gradient-to-b from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 w-16 h-16 rounded-full shadow-xl border-4 border-red-800 text-white font-bold text-2xl disabled:opacity-50"
               >
                 🎯
               </Button>
@@ -240,7 +247,7 @@ const PublicDraw = () => {
           </div>
 
           {/* Instructions */}
-          {!showWinner && !isSpinning && participants.length > 0 && (
+          {!showWinner && !isSpinning && !showCountdown && participants.length > 0 && (
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
