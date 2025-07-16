@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,7 @@ interface Participant {
 interface EditParticipantModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Partial<Participant>) => void;
+  onSave: (data: Partial<Participant>) => Promise<void>;
   participant: Participant | null;
 }
 
@@ -59,7 +60,7 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
     setIsLoading(true);
     
     try {
-      console.log('Salvando dados do formulário:', formData);
+      console.log('Enviando dados para salvamento:', formData);
       
       await onSave({
         nome: formData.nome.trim(),
@@ -67,16 +68,20 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({
         origem: formData.origem || null,
         observacoes: formData.observacoes || null
       });
+
+      console.log('Dados salvos com sucesso');
     } catch (error) {
-      console.error('Erro ao salvar:', error);
+      console.error('Erro ao salvar no modal:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleClose = () => {
-    setFormData({ nome: '', contato: '', origem: '', observacoes: '' });
-    onClose();
+    if (!isLoading) {
+      setFormData({ nome: '', contato: '', origem: '', observacoes: '' });
+      onClose();
+    }
   };
 
   return (
