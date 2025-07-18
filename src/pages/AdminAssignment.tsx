@@ -23,10 +23,11 @@ interface Participant {
 
 const AdminAssignment = () => {
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [selectedNumber, setSelectedNumber] = useState<number | null>(null);
+  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [availableNumbers, setAvailableNumbers] = useState<number[]>([]);
+  const [quantity, setQuantity] = useState<number>(1);
   const [formData, setFormData] = useState({
     nome: '',
     contato: '',
@@ -51,6 +52,10 @@ const AdminAssignment = () => {
     setAvailableNumbers(available);
   }, [participants]);
 
+  useEffect(() => {
+    loadParticipants();
+  }, []);
+
   const loadParticipants = async () => {
     try {
       const { data, error } = await supabase
@@ -67,8 +72,8 @@ const AdminAssignment = () => {
   };
 
   const handleSpin = () => {
-    if (availableNumbers.length === 0) {
-      toast.error('Todos os números já foram atribuídos!');
+    if (availableNumbers.length < quantity) {
+      toast.error(`Não há números suficientes disponíveis! Restam apenas ${availableNumbers.length} números.`);
       return;
     }
 
@@ -76,35 +81,52 @@ const AdminAssignment = () => {
     
     // Simular tempo de sorteio
     setTimeout(() => {
-      const randomIndex = Math.floor(Math.random() * availableNumbers.length);
-      const drawnNumber = availableNumbers[randomIndex];
-      setSelectedNumber(drawnNumber);
+      const drawnNumbers = [];
+      const availableCopy = [...availableNumbers];
+      
+      for (let i = 0; i < quantity; i++) {
+        const randomIndex = Math.floor(Math.random() * availableCopy.length);
+        const drawnNumber = availableCopy[randomIndex];
+        drawnNumbers.push(drawnNumber);
+        availableCopy.splice(randomIndex, 1);
+      }
+      
+      setSelectedNumbers(drawnNumbers);
       setIsSpinning(false);
-      toast.success(`Número sorteado: ${drawnNumber}!`);
+      toast.success(`${quantity} número(s) sorteado(s)!`);
     }, 2000);
   };
 
   const handleSaveParticipant = async () => {
-    if (!selectedNumber || !formData.nome || !formData.contato) {
+    if (selectedNumbers.length === 0 || !formData.nome || !formData.contato) {
       toast.error('Preencha os campos obrigatórios');
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from('participants')
-        .insert({
-          nome: formData.nome,
-          contato: formData.contato,
-          numero: selectedNumber,
-          origem: formData.origem || null,
-          observacoes: formData.observacoes || null
-        });
+      // Inserir um registro para cada número sorteado
+      const insertPromises = selectedNumbers.map(numero => 
+        supabase
+          .from('participants')
+          .insert({
+            nome: formData.nome,
+            contato: formData.contato,
+            numero: numero,
+            origem: formData.origem || null,
+            observacoes: formData.observacoes || null
+          })
+      );
 
-      if (error) throw error;
+      const results = await Promise.all(insertPromises);
+      
+      // Verificar se houve algum erro
+      const errors = results.filter(result => result.error);
+      if (errors.length > 0) {
+        throw new Error('Erro ao salvar alguns números');
+      }
 
-      toast.success(`Participante cadastrado com número ${selectedNumber}!`);
-      setSelectedNumber(null);
+      toast.success(`Participante cadastrado com ${selectedNumbers.length} número(s)!`);
+      setSelectedNumbers([]);
       setIsModalOpen(false);
       setFormData({ nome: '', contato: '', origem: '', observacoes: '' });
       loadParticipants();
@@ -126,7 +148,9 @@ const AdminAssignment = () => {
           <CardContent className="text-center space-y-6">
             {/* Number Display */}
             <div className="bg-slate-50 p-6 rounded-lg">
-              <div className="text-sm text-slate-600 mb-2">Próximo Número:</div>
+              <div className="text-sm text-slate-600 mb-2">
+                {quantity > 1 ? `Próximos ${quantity} Números:` : 'Próximo Número:'}
+              </div>
               <div className="text-4xl font-bold font-mono">
                 {isSpinning ? (
                   <motion.span
@@ -136,36 +160,67 @@ const AdminAssignment = () => {
                   >
                     ????
                   </motion.span>
-                ) : selectedNumber ? (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200 }}
-                    className="text-green-600"
-                  >
-                    {selectedNumber}
-                  </motion.span>
+                ) : selectedNumbers.length > 0 ? (
+                  <div className="space-y-2">
+                    {selectedNumbers.map((number, index) => (
+                      <motion.div
+                        key={number}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ 
+                          type: "spring", 
+                          stiffness: 200,
+                          delay: index * 0.1 
+                        }}
+                        className="text-green-600"
+                      >
+                        {number}
+                      </motion.div>
+                    ))}
+                  </div>
                 ) : (
                   <span className="text-slate-400">----</span>
                 )}
               </div>
             </div>
 
+            {/* Quantity Selection */}
+            <div className="space-y-2">
+              <Label htmlFor="quantity" className="text-sm font-medium">
+                Quantidade de números:
+              </Label>
+              <Select value={quantity.toString()} onValueChange={(value) => setQuantity(parseInt(value))}>
+                <SelectTrigger className="w-32 mx-auto">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                    <SelectItem key={num} value={num.toString()}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Action Buttons */}
             <div className="space-y-4">
               <Button
                 onClick={handleSpin}
-                disabled={isSpinning || availableNumbers.length === 0}
+                disabled={isSpinning || availableNumbers.length < quantity}
                 size="lg"
                 className="px-8 py-3 text-lg"
               >
                 {isSpinning ? '🎯 Sorteando...' : '🎯 Girar Roleta de Atribuição'}
               </Button>
 
-              {selectedNumber && !isSpinning && (
+              {selectedNumbers.length > 0 && !isSpinning && (
                 <div className="space-y-4">
                   <div className="text-lg font-semibold text-green-600">
-                    Número Sorteado: {selectedNumber}
+                    {selectedNumbers.length > 1 
+                      ? `Números Sorteados: ${selectedNumbers.join(', ')}`
+                      : `Número Sorteado: ${selectedNumbers[0]}`
+                    }
                   </div>
                   <Button
                     onClick={() => setIsModalOpen(true)}
@@ -194,7 +249,12 @@ const AdminAssignment = () => {
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Cadastrar Participante - Número {selectedNumber}</DialogTitle>
+              <DialogTitle>
+                Cadastrar Participante - {selectedNumbers.length > 1 
+                  ? `${selectedNumbers.length} Números`
+                  : `Número ${selectedNumbers[0]}`
+                }
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
